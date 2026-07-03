@@ -1,0 +1,118 @@
+# GEE Scripts
+
+Google Earth Engine (GEE) JavaScript scripts for the spatial
+data extraction and model deployment components of this study.
+
+## Scripts
+
+| File | Purpose | Output |
+|------|---------|--------|
+| `01_S2_GSE_extraction.js` | Extract Sentinel-2 annual percentile composites and GSE embedding values at field survey locations; export as CSV for use in R scripts | CSV files (input for STEP_01 to STEP_05 R scripts) |
+| `02_SPC_spatial_deployment.js` | Train two-stage RF model (Stage A: morphology classification; Stage B: SPC regression) and deploy spatially per survey year | SPC prediction rasters per year in GEE Assets and Google Drive |
+| `03_GEE_app_viewer.js` | Interactive web application for visual exploration of SPC predictions across study sites | Live app: https://muhammadhafizt.users.earthengine.app/view/seagrasspercentcoverindonesia |
+
+---
+
+## Workflow
+
+Run scripts in the following order:
+
+```
+01_S2_GSE_extraction.js
+      |
+      v
+  CSV files exported to Google Drive
+      |
+      v
+  R scripts (STEP_01 to STEP_05)
+      |
+      v
+02_SPC_spatial_deployment.js
+      |
+      v
+  SPC rasters exported to GEE Assets
+      |
+      v
+03_GEE_app_viewer.js  (loads rasters from GEE Assets)
+```
+
+---
+
+## Requirements
+
+- A Google Earth Engine account: https://earthengine.google.com
+- Access to the GEE Code Editor: https://code.earthengine.google.com
+- Field survey training data (see Data Availability Statement in paper)
+
+---
+
+## Required GEE Assets
+
+The following assets are required to run these scripts. Assets
+marked [PRIVATE] are not publicly shared. Contact the
+corresponding author (m.hafizt@uq.edu.au) for access or
+substitute with your own equivalent data.
+
+### Training data
+
+| Asset | Description | Availability |
+|-------|-------------|--------------|
+| combined_dataSP_all_years_with_S2_clean | Field survey observations (2018-2022) with seagrass percent cover and species composition | [PRIVATE] Available upon request subject to BRIN governance |
+
+### Study area boundaries
+
+| Asset | Description | Availability |
+|-------|-------------|--------------|
+| R2_case_study | FeatureCollection of five study site boundaries with loc property | [PRIVATE] |
+
+### Environmental layers
+
+| Asset | Description | Availability |
+|-------|-------------|--------------|
+| raster_INA_ACA_Bathymetry | Shallow water bathymetry (Allen Coral Atlas) | [PRIVATE] - Original source: https://allencoralatlas.org |
+| acav2_indoarch_stack | Allen Coral Atlas reef habitat mask | [PRIVATE] - Original source: https://allencoralatlas.org |
+| osm_distToLand_indo | Distance to nearest land surface in metres | [PRIVATE] - Derived from OpenStreetMap |
+
+### Seagrass persistence mask
+
+| Asset | Description | Availability |
+|-------|-------------|--------------|
+| seagrass_persistence_mask_byYearCount_2017_2025 | Binary mask of pixels with seagrass presence across multiple years; used to restrict spatial prediction extent | [PRIVATE] - Derived from unpublished multi-year seagrass occurrence mapping |
+
+### SPC prediction outputs (required for GEE App only)
+
+These are outputs of 02_SPC_spatial_deployment.js and are
+required as inputs to 03_GEE_app_viewer.js.
+
+| Asset | Description |
+|-------|-------------|
+| SPC_GSE_twoStage_2018 | SPC prediction raster for 2018 |
+| SPC_GSE_twoStage_2019 | SPC prediction raster for 2019 |
+| SPC_GSE_twoStage_2021 | SPC prediction raster for 2021 |
+| SPC_GSE_twoStage_2022 | SPC prediction raster for 2022 |
+
+---
+
+## Public GEE Datasets Used
+
+The following datasets are publicly available in the GEE catalog
+and do not require private access:
+
+| GEE Catalog ID | Description |
+|----------------|-------------|
+| COPERNICUS/S2_SR_HARMONIZED | Harmonized Sentinel-2 MSI Level-2A surface reflectance |
+| GOOGLE/SATELLITE_EMBEDDING/V1/ANNUAL | Google Satellite Embeddings (GSE), annual composites |
+
+---
+
+## Notes on Module Dependencies
+
+Scripts in this repository are self-contained and do not
+depend on external GEE modules.
+
+The original development version used shared GEE modules
+(mosaic_classification_functions_Indo and seagrass_params_Indo)
+developed in collaboration with the Marine Remote Sensing Group
+at the University of Queensland. Only the functions and
+parameters relevant to this study have been extracted and
+included inline in the published scripts.
